@@ -3,11 +3,14 @@ from sqlalchemy.orm import Session
 import os, shutil, uuid
 from openai import OpenAI
 from dotenv import load_dotenv
-
+# from app.controllers.user import register_user, login_user, UserCreate, UserLogin, UserOut
 from app.deps import get_db
 from app.models.recording import Recording
 from app.models.evaluation import Evaluation
 from app.models.user import User
+from pydantic import BaseModel, EmailStr
+from app.services.user_manager import UserManager
+
 # -------- Load ENV + OpenAI Client --------
 load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -15,6 +18,8 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 router = APIRouter()
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+
 
 # -------- Upload ==> Save to DB ==> Transcribe ==> Update DB--------
 @router.post("/upload")
@@ -105,3 +110,4 @@ async def evaluate_audio(
         "score": evaluation.score,
         "feedback": evaluation.feedback
     }
+
