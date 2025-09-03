@@ -3,11 +3,16 @@ from datetime import datetime
 from sqlalchemy import String, Integer, DateTime, Text, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db import Base
+from enum import Enum
 
 if TYPE_CHECKING:
     from app.models.user import User
     from app.models.evaluation import Evaluation
 
+class RecordingStatus(str, Enum):
+    processing = "processing"
+    done = "done"
+    failed = "failed"
 
 class Recording(Base):
     __tablename__ = "recordings"
@@ -16,6 +21,7 @@ class Recording(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     file_path: Mapped[str] = mapped_column(String, nullable=False)
     transcription: Mapped[Optional[str]] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(default=RecordingStatus.processing) 
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 
     # Many-to-one: many recordings → one user
