@@ -7,9 +7,7 @@ It includes authentication, audio processing, and integrations (OpenAI, Google O
 ```bash
 git clone <your-repo-url>
 cd kid_speech_app
-
 # 2. Create and activate a virtual environment
-
 python -m venv venv
 venv\Scripts\activate.bat
 # To deactivate:

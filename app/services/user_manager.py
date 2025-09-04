@@ -18,6 +18,7 @@ class UserManager(BaseService):
 
     def register(self, name: str, email: str, password: str, age: int | None = None):
         try:
+            
             user = User(
                 name=name,
                 email=email,
@@ -58,7 +59,14 @@ class UserManager(BaseService):
         return user
 
     def login(self, email: str, password: str):
+
         user = self.db.query(User).filter(User.email == email).first()
+        if user.google_id:
+         raise HTTPException(
+            status_code=400,
+            detail="This account was created with Google. Please log in using Google OAuth."
+        )
+       
         if not user or not self.verify_password(password, user.password):
             raise HTTPException(status_code=401, detail="Invalid credentials")
         return user

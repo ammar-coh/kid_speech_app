@@ -1,9 +1,14 @@
-import jwt
+import os, jwt
 from datetime import datetime, timedelta
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status,Depends
 from authlib.integrations.starlette_client import OAuth
 from app.config import settings
+from sqlalchemy.orm import Session
+from app.deps import get_db
+from app.models.user import User
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
+security = HTTPBearer()
 
 class AuthService:
     def __init__(self):
@@ -45,6 +50,22 @@ class AuthService:
     # -------- Google OAuth --------
     def get_google_oauth(self):
         """Expose Google OAuth client"""
-        print("Client ID:", settings.GOOGLE_CLIENT_ID)
-
         return self.oauth
+# -------- Current User Dependency --------
+    def get_current_user(
+        self,
+        credentials: HTTPAuthorizationCredentials = Depends(security),
+        db: Session = Depends(get_db),
+    ) -> User:
+        token = credentials.credentials
+        user_id = self.verify_token(token)
+
+        user = db.get(User, int(user_id))
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return user
+
+
+# ✅ make one instance to import everywhere
+auth_service = AuthService()
