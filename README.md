@@ -31,8 +31,15 @@ SESSION_SECRET=python -c "import secrets; print(secrets.token_hex(32))"
 pip install -r requirements.txt
 # If you add new packages, update requirements:
 pip freeze > requirements.txt
+
+
 # 5. Run the server
-uvicorn app.main:app --reload
+
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>
+>>>>>>>>>uvicorn app.main:app --reload<<<<<<<<<<<<<<
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>
+
+
 # API Docs:
 Swagger UI → http://127.0.0.1:8000/docs
 ReDoc → http://127.0.0.1:8000/redoc

@@ -51,7 +51,9 @@ async def upload_audio(
             # -------- Transcribe with OpenAI Whisper --------
             with open(recording.file_path, "rb") as audio_file:
                 transcription = client.audio.transcriptions.create(
-                    model="gpt-4o-mini-transcribe", file=audio_file
+                    model="whisper-1", 
+                    file=audio_file,
+                    temperature=0.2 
                 )
 
             # -------- Update DB row (status=done) --------
