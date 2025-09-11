@@ -47,7 +47,7 @@ class UserManager(BaseService):
             user = User(
                 name=user_info.get("name", "Google User"),
                 email=user_info["email"],
-                password="oauth_dummy_password",  # never used for Google
+                password=None,  # never used for Google
                 google_id=user_info.get("sub"),
                 picture=user_info.get("picture"),
                 email_verified=user_info.get("email_verified"),
@@ -55,18 +55,40 @@ class UserManager(BaseService):
             self.db.add(user)
             self.db.commit()
             self.db.refresh(user)
+            return user
+        updates = {
+        "google_id": user_info.get("sub"),   # attach google_id if matched by email
+        "email": user_info["email"],
+        "picture": user_info.get("picture"),
+        "email_verified": user_info.get("email_verified"),
+        "name": user_info.get("name", user.name),
+    }
 
+        updated = False
+        for field, new_value in updates.items():
+         if getattr(user, field) != new_value:
+            setattr(user, field, new_value)
+            updated = True
+
+        if updated:
+         self.db.commit()
+         self.db.refresh(user)
+
+    # 5. Return the existing user (after potential updates)
         return user
 
+        
     def login(self, email: str, password: str):
 
         user = self.db.query(User).filter(User.email == email).first()
-        if user.google_id:
+        # print("user doesn't exist", user)
+        if user is None:
+         raise HTTPException(status_code=404, detail="User not found")
+        if not user.password:
          raise HTTPException(
-            status_code=400,
-            detail="This account was created with Google. Please log in using Google OAuth."
-        )
-       
+          status_code=400,
+         detail="This account does not have a password. Please log in using Google OAuth. Create password through settings in app."
+         )
         if not user or not self.verify_password(password, user.password):
             raise HTTPException(status_code=401, detail="Invalid credentials")
         return user
